@@ -4,19 +4,28 @@ const express = require('express')
 
 const morgan = require('morgan')
 
-const app = express();
+const mongoose = require('mongoose')
 
 const port = process.env.PORT
 
-app.use(morgan('dev'))
-
-
-app.get('/', (req, res) => {
-    res.status(200).json({
-        message: "Hello Boss <3"
+mongoose.set('strictQuery', true)
+mongoose.connect(process.env.DATABASE_CONNECTION, { useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
+    console.log("Database connected");
+    app.listen(port, () => {
+        console.log(`The server is listening on PORT ${port}`);
     })
 })
-
-app.listen(port, () => {
-    console.log(`The server is listening on PORT ${port}`);
+.catch((error) => {
+    console.log(error);
 })
+
+const app = express();
+
+
+
+const workoutRouters = require('./routes/workout')
+
+app.use(morgan('dev'))
+app.use(express.json()) //This middleware helps reading JSON sent by requests
+app.use('/api/workout', workoutRouters)
+
