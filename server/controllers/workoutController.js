@@ -59,9 +59,68 @@ const fetchSingleWorkoutById = async (req, res) => {
     }
 }
 
+// DELETE -> A specific element 
+
+const deleteAWorkoutById = async (req, res) => {
+    try{
+       const { id } = req.params
+       if(!mongoose.Types.ObjectId.isValid(id)){
+            return res.status(404).json({
+                error: "Invalid type of ID."
+            })
+       }
+       const found = await Workout.findOneAndDelete({ _id : id}) 
+
+       if(!found){
+            return res.status(404).json({
+                error: "Workout not found."
+            })
+       }
+
+       return res.status(200).json({
+            message: "Deleted the workout."
+       })
+    }catch (error){
+        res.status(406).json({
+            error: error
+        })
+    }
+}
+
+
+const updateAWorkoutById = async (req, res) => {
+    try{
+        const { id } = req.params
+
+        if(!mongoose.Types.ObjectId.isValid(id)){
+            return res.status(404).json({
+                error: "Invalid Type of ID."
+            })
+        }
+
+        const found = await Workout.findOneAndUpdate({ _id: id }, {
+            ...req.body
+        })
+
+        if(!found){
+            return res.status(404).json({
+                error: "Workout not out."
+            })
+        }
+        res.status(200).json({
+            message: "Workout updated successfully!"
+        })
+    }catch (error){
+        res.status(406).json({
+            error: error
+        })
+    }
+}
 
 module.exports = {
     addNewWorkout, 
     fetchAllWorkouts,
-    fetchSingleWorkoutById
+    fetchSingleWorkoutById,
+    deleteAWorkoutById,
+    updateAWorkoutById
 }
