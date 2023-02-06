@@ -6,6 +6,7 @@ const morgan = require('morgan')
 
 const mongoose = require('mongoose')
 
+
 const port = process.env.PORT
 
 mongoose.set('strictQuery', true)
@@ -24,8 +25,10 @@ const app = express();
 
 
 const workoutRouters = require('./routes/workout')
+const userRouter = require('./routes/user')
 
 app.use(morgan('dev'))
 app.use(express.json()) //This middleware helps reading JSON sent by requests
 app.use('/api/workout', workoutRouters)
+app.use('/api/user', userRouter)
 
