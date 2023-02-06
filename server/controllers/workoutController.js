@@ -7,7 +7,9 @@ const addNewWorkout = async (req, res) => {
     const {title, load, reps} = req.body
 
     try{ 
-        const workout = await Workout.create({title, load, reps})
+        const user_id = req.user._id
+        const workout = await Workout.create({title, load, reps, user_id})
+
         res.status(201).json({message : `Workout: ${workout.title} created successfully!`})
     }catch (error) {
         res.status(400).json({
@@ -20,7 +22,8 @@ const addNewWorkout = async (req, res) => {
 
 const fetchAllWorkouts = async (req, res) => {
     try{
-        const workouts = await Workout.find({}).sort({createdAt: -1})
+        const user_id = req.user._id
+        const workouts = await Workout.find({ user_id }).sort({createdAt: -1})
         res.status(200).json({
             message: workouts
         })
@@ -36,12 +39,13 @@ const fetchAllWorkouts = async (req, res) => {
 const fetchSingleWorkoutById = async (req, res) => {
     try{
         const { id } = req.params
+        const user_id = req.user._id
         if(!mongoose.Types.ObjectId.isValid(id)){
             return res.status(406).json({
                 error: "Invalid type of ID"
             })
         }
-        const found = await Workout.findById(id)
+        const found = await Workout.find({_id:id, user_id})
         if (!found){
             return res.status(404).json({
                 message: "Workout not found"
@@ -64,12 +68,13 @@ const fetchSingleWorkoutById = async (req, res) => {
 const deleteAWorkoutById = async (req, res) => {
     try{
        const { id } = req.params
+       const user_id = req.user._id
        if(!mongoose.Types.ObjectId.isValid(id)){
             return res.status(404).json({
                 error: "Invalid type of ID."
             })
        }
-       const found = await Workout.findOneAndDelete({ _id : id}) 
+       const found = await Workout.findOneAndDelete({ _id : id, user_id}) 
 
        if(!found){
             return res.status(404).json({
@@ -91,6 +96,7 @@ const deleteAWorkoutById = async (req, res) => {
 const updateAWorkoutById = async (req, res) => {
     try{
         const { id } = req.params
+        const { user_id } = req.user._id
 
         if(!mongoose.Types.ObjectId.isValid(id)){
             return res.status(404).json({
@@ -98,7 +104,7 @@ const updateAWorkoutById = async (req, res) => {
             })
         }
 
-        const found = await Workout.findOneAndUpdate({ _id: id }, {
+        const found = await Workout.findOneAndUpdate({ _id: id, user_id}, {
             ...req.body
         })
 
